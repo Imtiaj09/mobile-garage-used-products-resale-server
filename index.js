@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -19,12 +19,29 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
   try {
     const categoriesCollection = client.db('mobileGarage').collection('categories')
+    const usersCollection = client.db('mobileGarage').collection('users')
+    const productsCollection = client.db('mobileGarage').collection('products')
 
     app.get('/categories', async (req, res) => {
       const query = {};
       const result = await categoriesCollection.find(query).toArray();
       res.send(result)
+    });
+
+    app.get('/category/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { categories_id: id };
+      const products = await productsCollection.find(query).toArray();
+      res.send(products);
     })
+
+
+    app.post('/users', async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    })
+
   }
   finally {
 
