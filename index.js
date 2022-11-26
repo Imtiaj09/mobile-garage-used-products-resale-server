@@ -23,6 +23,7 @@ async function run() {
     const bookingsCollection = client.db('mobileGarage').collection('bookings');
     const usersCollection = client.db('mobileGarage').collection('users');
 
+    // products Categories
     app.get('/categories', async (req, res) => {
       const query = {};
       const result = await categoriesCollection.find(query).toArray();
@@ -36,6 +37,7 @@ async function run() {
       res.send(products);
     });
 
+    //booking products
     app.get('/bookings', async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
@@ -50,12 +52,12 @@ async function run() {
       res.send(result);
     });
 
-
+    //All users
     app.post('/users', async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
       res.send(result);
-    })
+    });
 
   }
   finally {
