@@ -94,8 +94,15 @@ async function run() {
       const query = {};
       const users = await usersCollection.find(query).toArray();
       res.send(users);
-    })
+    });
 
+    //for spacapic user admin check
+    app.get('/users/admin/:id', async (req, res) => {
+      const id = res.params.id;
+      const query = { _id: ObjectId(id) };
+      const user = await usersCollection.findOne(query);
+      res.send({ isAdmin: user?.role === 'admin' });
+    });
 
     app.post('/users', async (req, res) => {
       const user = req.body;
