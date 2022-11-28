@@ -65,6 +65,22 @@ async function run() {
       res.send(products);
     });
 
+    //query with email for spacapic product 
+    app.get('/products', async (req, res) => {
+      let query = {};
+      console.log(req.query.email);
+      if (req.query.email) {
+        query = {
+          email: req.query.email
+        }
+      }
+      console.log(query);
+      const cursor = await productsCollection.find(query)
+      console.log(cursor);
+      // const result = await cursor.toArray();
+      res.send(cursor)
+    })
+
     //booking products
     app.get('/bookings', verifyJWT, async (req, res) => {
       const email = req.query.email;
@@ -76,7 +92,7 @@ async function run() {
       const query = { email: email };
       const bookings = await bookingsCollection.find(query).toArray();
       res.send(bookings);
-    })
+    });
 
     app.post('/bookings', async (req, res) => {
       const booking = req.body;
