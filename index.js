@@ -113,7 +113,15 @@ async function run() {
     });
 
     //verify seller API
-    app.put('/users/:email', async (req, res) => {
+    app.put('/users/:email', verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const query1 = { email: decodedEmail };
+      const user1 = await usersCollection.findOne(query1);
+
+      if (user1?.verify !== true) {
+        return res.status(403).send({ message: 'Forbidden Access' })
+      }
+
       const email = req.params.email;
       const query = { email };
       const user = await usersCollection.findOne(query);
