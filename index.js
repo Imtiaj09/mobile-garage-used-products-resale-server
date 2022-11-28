@@ -19,7 +19,7 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-function verifyJWT(req, res, nest) {
+function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).send('Unauthorized Access')
@@ -31,7 +31,7 @@ function verifyJWT(req, res, nest) {
       return res.status(403).send({ message: 'Forbidden Access' })
     }
     req.decoded = decoded;
-    nest();
+    next();
   })
 };
 
@@ -43,12 +43,20 @@ async function run() {
     const bookingsCollection = client.db('mobileGarage').collection('bookings');
     const usersCollection = client.db('mobileGarage').collection('users');
 
+
     // products Categories
     app.get('/categories', async (req, res) => {
       const query = {};
       const result = await categoriesCollection.find(query).toArray();
       res.send(result)
     });
+
+    //Add Product API
+    app.post('/categories', async (req, res) => {
+      const query = req.body;
+      const products = await productsCollection.insertOne(query);
+      res.send(products);
+    })
 
     app.get('/category/:id', async (req, res) => {
       const id = req.params.id;
@@ -95,11 +103,18 @@ async function run() {
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
+    //for spacapic seller check API
+    app.get('/users/seller/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isSeller: user?.role === 'seller' });
+    });
 
-    //for spacapic user admin check
-    app.get('/users/admin/:id', async (req, res) => {
-      const id = res.params.id;
-      const query = { _id: ObjectId(id) };
+    //for spacapic user admin check API
+    app.get('/users/admin/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
       const user = await usersCollection.findOne(query);
       res.send({ isAdmin: user?.role === 'admin' });
     });
