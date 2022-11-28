@@ -103,12 +103,28 @@ async function run() {
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
+
     //for spacapic seller check API
     app.get('/users/seller/:email', async (req, res) => {
       const email = req.params.email;
       const query = { email };
       const user = await usersCollection.findOne(query);
       res.send({ isSeller: user?.role === 'seller' });
+    });
+
+    //verify seller API
+    app.put('/users/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      const updatedDoc = {
+        $set: {
+          verify: true
+        }
+      };
+      const result = await usersCollection.updateOne(query, updatedDoc);
+      console.log(user);
+      res.send(result);
     });
 
     //for spacapic user admin check API
