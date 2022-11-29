@@ -187,6 +187,14 @@ async function run() {
       res.send(result)
     });
 
+    // delete API for all users
+    app.delete('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await usersCollection.deleteOne(filter);
+      res.send(result);
+    })
+
   }
   finally {
 
