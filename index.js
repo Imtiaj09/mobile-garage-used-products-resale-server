@@ -167,6 +167,33 @@ async function run() {
       res.send(result);
     });
 
+    //
+    app.put('/products/:id', verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const query1 = { email: decodedEmail };
+      const user1 = await usersCollection.findOne(query1);
+
+      if (user1?.role !== 'seller') {
+        return res.status(403).send({ message: 'Forbidden Access' })
+      };
+
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          advertise: true
+        }
+      };
+      const result = await productsCollection.updateOne(query, updatedDoc);
+      res.send(result);
+    });
+
+    app.get('/products/advertise', async (req, res) => {
+      const query = { advertise: true };
+      const product = await productsCollection.find(query).toArray();
+      res.send(product)
+    })
+
     //for spacapic user admin check API
     app.get('/users/admin/:email', async (req, res) => {
       const email = req.params.email;
