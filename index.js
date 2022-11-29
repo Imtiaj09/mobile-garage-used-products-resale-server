@@ -45,6 +45,7 @@ async function run() {
     const productsCollection = client.db('mobileGarage').collection('products');
     const bookingsCollection = client.db('mobileGarage').collection('bookings');
     const usersCollection = client.db('mobileGarage').collection('users');
+    const paymentsCollection = client.db('mobileGarage').collection('payments');
 
 
     // products Categories
@@ -124,7 +125,7 @@ async function run() {
       res.status(403).send({ accessToken: '' })
     });
 
-    //Payment API 
+    //Payment intent API 
     app.post('/create-payment-intent', async (req, res) => {
       const booking = req.body;
       const sellingPrice = booking.sellingPrice;
@@ -142,6 +143,21 @@ async function run() {
       });
     });
 
+    //store Payment 
+    app.post('/payments', async (req, res) => {
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+      const id = payment.bookingId;
+      const filter = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId
+        }
+      }
+      const updateResult = await bookingsCollection.updateOne(filter, updatedDoc)
+      res.send(result);
+    })
 
     //All users
     app.get('/users', async (req, res) => {
