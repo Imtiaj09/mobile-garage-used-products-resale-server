@@ -71,15 +71,15 @@ async function run() {
       console.log(req.query.email);
       if (req.query.email) {
         query = {
-          email: req.query.email
+          "author.email": req.query.email
         }
       }
       console.log(query);
-      const cursor = await productsCollection.find(query)
+      const cursor = await productsCollection.find(query).toArray();
       console.log(cursor);
       // const result = await cursor.toArray();
       res.send(cursor)
-    })
+    });
 
     //booking products
     app.get('/bookings', verifyJWT, async (req, res) => {
@@ -93,6 +93,14 @@ async function run() {
       const bookings = await bookingsCollection.find(query).toArray();
       res.send(bookings);
     });
+
+    //for single booking id
+    app.get('/bookings/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const booking = await bookingsCollection.findOne(query);
+      res.send(booking);
+    })
 
     app.post('/bookings', async (req, res) => {
       const booking = req.body;
@@ -120,6 +128,14 @@ async function run() {
       res.send(users);
     });
 
+    //user verify for admin 
+    app.get('/users/isVerified', async (req, res) => {
+      const query = { email: req.query.email };
+      const user = await usersCollection.findOne(query);
+      res.send(user?.verify || false);
+    });
+
+
     //for spacapic seller check API
     app.get('/users/seller/:email', async (req, res) => {
       const email = req.params.email;
@@ -134,7 +150,7 @@ async function run() {
       const query1 = { email: decodedEmail };
       const user1 = await usersCollection.findOne(query1);
 
-      if (user1?.verify !== true) {
+      if (user1?.role !== 'admin') {
         return res.status(403).send({ message: 'Forbidden Access' })
       }
 
