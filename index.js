@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const e = require('express');
 require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -80,8 +81,6 @@ async function run() {
       }
       console.log(query);
       const cursor = await productsCollection.find(query).toArray();
-      console.log(cursor);
-      // const result = await cursor.toArray();
       res.send(cursor)
     });
 
@@ -166,7 +165,6 @@ async function run() {
         query = { role: req.query.person };
       };
       const users = await usersCollection.find(query).toArray();
-      console.log(users);
       res.send(users);
     });
 
@@ -205,7 +203,6 @@ async function run() {
         }
       };
       const result = await usersCollection.updateOne(query, updatedDoc);
-      console.log(user);
       res.send(result);
     });
 
