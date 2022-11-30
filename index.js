@@ -161,8 +161,12 @@ async function run() {
 
     //All users
     app.get('/users', async (req, res) => {
-      const query = {};
+      let query = {}
+      if (req.query.person) {
+        query = { role: req.query.person };
+      };
       const users = await usersCollection.find(query).toArray();
+      console.log(users);
       res.send(users);
     });
 
